@@ -1,4 +1,3 @@
-# psychology_bot/handlers/questions.py
 from aiogram import Router, F
 from aiogram.filters import Command
 from aiogram.types import Message, CallbackQuery
@@ -9,21 +8,17 @@ import aiosqlite
 import re
 import logging
 
-# وارد کردن موارد مشترک از ماژول ثبت نام
 from .registration import Consultation, get_ask_new_question_keyboard
-# وارد کردن توابع دیتابیس
 from db import get_or_create_user, increment_message_count, reset_monthly_limit
-# وارد کردن تنظیمات از کانفیگ
 from config import CONSULTANT_ID, MESSAGE_LIMIT, LIMIT_REACHED_MESSAGE
 
 router = Router()
 
 async def pre_question_check(db: aiosqlite.Connection, user_id: int):
-    """تابع کمکی برای بررسی وضعیت و سهمیه کاربر قبل از هر سوال"""
+    """Auxiliary function to check the user's status and quota before each question."""
     user_data = await get_or_create_user(db, user_id)
-    # user_data -> (full_name, phone_number, city, message_count, last_message_month)
     
-    if not user_data[0]:  # اگر نام کامل وجود نداشت
+    if not user_data[0]:  # If the full name is not available
         return "not_registered", None
     
     current_month = datetime.datetime.now().month
@@ -79,7 +74,7 @@ async def process_question(message: Message, state: FSMContext, db: aiosqlite.Co
             f"📩 <b>درخواست مشاوره جدید (روانشناسی)</b>\n\n"
             f"<b>نام:</b> {escape(full_name)}\n"
             f"<b>تماس:</b> {escape(phone_number)}\n"
-            f"<b>شهر:</b> {escape(city)}\n"  # <-- فیلد شهر جایگزین پایه شد
+            f"<b>شهر:</b> {escape(city)}\n"
             f"<b>آیدی کاربر:</b> <code>{user_id}</code>\n"
             f"<b>یوزرنیم:</b> @{message.from_user.username or 'ندارد'}\n\n"
             f"<b>سوال:</b>\n{escape(message.text)}"

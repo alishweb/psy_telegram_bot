@@ -29,14 +29,10 @@ class SubscriptionMiddleware(BaseMiddleware):
             return await handler(event, data)
             
         state = data.get('state')
-        # --- بخش اصلاح شده ---
-        # اگر کاربر در هر یک از حالت‌های FSM بود، میدل‌ور کاری به او ندارد
-        # این کار از تداخل در فرآیند ثبت‌نام و پرسش سوال جلوگیری می‌کند
+
         if await state.get_state() is not None:
             return await handler(event, data)
-        # --- پایان بخش اصلاح شده ---
 
-        # استثناها: برای این موارد هم میدل‌ور اجرا نشود
         if event.message and event.message.text and event.message.text.startswith("/start"):
             return await handler(event, data)
         if event.callback_query and event.callback_query.data == "check_join":

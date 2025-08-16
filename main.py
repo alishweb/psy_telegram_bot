@@ -1,9 +1,7 @@
-# too_tele_bot/main.py
 import asyncio
 import logging
 import aiosqlite
 
-# STEP 1: Import DefaultBotProperties
 from aiogram import Bot, Dispatcher
 from aiogram.client.default import DefaultBotProperties
 from aiogram.types import BotCommand
@@ -16,7 +14,6 @@ from db import create_tables, DB_FILE
 async def main():
     logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(name)s - %(message)s")
 
-    # STEP 2: Change how the bot is initialized
     bot = Bot(token=API_TOKEN, default=DefaultBotProperties(parse_mode="HTML"))
     
     async with aiosqlite.connect(DB_FILE) as db:

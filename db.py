@@ -16,7 +16,6 @@ async def create_tables(db: aiosqlite.Connection):
     await db.commit()
 
 async def get_or_create_user(db: aiosqlite.Connection, user_id: int):
-    # کوئری برای خواندن ستون‌های جدید آپدیت شد
     async with db.execute("SELECT full_name, phone_number, city, message_count, last_message_month FROM users WHERE user_id = ?", (user_id,)) as cursor:
         user_data = await cursor.fetchone()
     if user_data is None:
@@ -26,11 +25,10 @@ async def get_or_create_user(db: aiosqlite.Connection, user_id: int):
     return user_data
 
 async def update_user_details(db: aiosqlite.Connection, user_id: int, full_name: str, phone_number: str, city: str):
-    # کوئری برای آپدیت ستون‌های جدید اصلاح شد
     await db.execute("UPDATE users SET full_name=?, phone_number=?, city=? WHERE user_id=?", (full_name, phone_number, city, user_id))
     await db.commit()
 
-# توابع increment_message_count و reset_monthly_limit بدون تغییر باقی می‌مانند
+
 async def increment_message_count(db: aiosqlite.Connection, user_id: int, current_month: int):
     await db.execute("UPDATE users SET message_count = message_count + 1, last_message_month = ? WHERE user_id = ?", (current_month, user_id))
     await db.commit()

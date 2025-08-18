@@ -4,9 +4,14 @@ from dotenv import load_dotenv
 load_dotenv()
 
 API_TOKEN = os.getenv("BOT_TOKEN_PSYCHOLOGY")
-CONSULTANT_ID_STR = os.getenv("CONSULTANT_ID_PSYCHOLOGY")
+OWNER_ID = int(os.getenv("OWNER_ID"))
 
-CONSULTANT_ID = int(CONSULTANT_ID_STR)
+CONSULTANT_IDS_STR = os.getenv("CONSULTANT_IDS_PSYCHOLOGY", "")
+if not CONSULTANT_IDS_STR:
+    raise ValueError("حداقل یک آیدی مشاور در فایل .env در متغیر CONSULTANT_IDS_PSYCHOLOGY نیاز است.")
+
+CONSULTANT_IDS = [int(cid.strip()) for cid in CONSULTANT_IDS_STR.split(',')]
+
 
 CHANNELS = ['@aiimpact_ir', '@ai_agent_farsi']
 MESSAGE_LIMIT = 2

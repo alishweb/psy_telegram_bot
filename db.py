@@ -1,13 +1,9 @@
-# psychology_bot/db.py
 import aiosqlite
 from config import CONSULTANT_IDS
 
-# نام فایل دیتابیس مخصوص این ربات
 DB_FILE = "psychology_bot.db"
 
 async def create_all_tables(db: aiosqlite.Connection):
-    """تمام جداول مورد نیاز برنامه را با ساختار جدید ایجاد می‌کند."""
-    # جدول کاربران با ستون city و assigned_consultant_id
     await db.execute('''
         CREATE TABLE IF NOT EXISTS users (
             user_id INTEGER PRIMARY KEY,
@@ -19,7 +15,6 @@ async def create_all_tables(db: aiosqlite.Connection):
             assigned_consultant_id INTEGER
         )
     ''')
-    # جدول آمار مشاوران با ستون‌های نام و یوزرنیم
     await db.execute('''
         CREATE TABLE IF NOT EXISTS consultant_stats (
             consultant_id INTEGER PRIMARY KEY,
@@ -29,7 +24,6 @@ async def create_all_tables(db: aiosqlite.Connection):
             answered_questions INTEGER DEFAULT 0
         )
     ''')
-    # جدول تنظیمات برای نوبت‌دهی
     await db.execute('''
         CREATE TABLE IF NOT EXISTS settings (
             key TEXT PRIMARY KEY,
@@ -40,13 +34,11 @@ async def create_all_tables(db: aiosqlite.Connection):
     await db.commit()
 
 async def ensure_consultants_in_db(db: aiosqlite.Connection):
-    """مطمئن می‌شود که تمام مشاوران در جدول آمار وجود دارند."""
     for cid in CONSULTANT_IDS:
         await db.execute("INSERT OR IGNORE INTO consultant_stats (consultant_id) VALUES (?)", (cid,))
     await db.commit()
 
 async def get_or_create_user(db: aiosqlite.Connection, user_id: int):
-    """اطلاعات کاربر را با ستون city می‌خواند."""
     query = "SELECT full_name, phone_number, city, message_count, last_message_month, assigned_consultant_id FROM users WHERE user_id = ?"
     async with db.execute(query, (user_id,)) as cursor:
         user_data = await cursor.fetchone()
@@ -57,17 +49,14 @@ async def get_or_create_user(db: aiosqlite.Connection, user_id: int):
     return user_data
 
 async def update_user_details(db: aiosqlite.Connection, user_id: int, full_name: str, phone_number: str, city: str):
-    """اطلاعات کاربر را با ستون city آپدیت می‌کند."""
     await db.execute("UPDATE users SET full_name=?, phone_number=?, city=? WHERE user_id=?", (full_name, phone_number, city, user_id))
     await db.commit()
 
 async def assign_consultant_to_user(db: aiosqlite.Connection, user_id: int, consultant_id: int):
-    """یک مشاور را برای همیشه به یک کاربر اختصاص می‌دهد."""
     await db.execute("UPDATE users SET assigned_consultant_id = ? WHERE user_id = ?", (consultant_id, user_id))
     await db.commit()
 
 async def update_consultant_info(db: aiosqlite.Connection, consultant_id: int, name: str, username: str):
-    """نام و یوزرنیم مشاور را در جدول آمار ذخیره یا آپدیت می‌کند."""
     await db.execute(
         "UPDATE consultant_stats SET consultant_name = ?, consultant_username = ? WHERE consultant_id = ?",
         (name, username, consultant_id)

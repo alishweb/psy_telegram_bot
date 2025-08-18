@@ -1,4 +1,3 @@
-# psychology_bot/handlers/questions.py
 from aiogram import Router, F
 from aiogram.filters import Command
 from aiogram.types import Message, CallbackQuery
@@ -73,7 +72,6 @@ async def process_question(message: Message, state: FSMContext, db: aiosqlite.Co
             await message.answer(LIMIT_REACHED_MESSAGE, reply_markup=get_ask_new_question_keyboard())
             return
 
-        # تغییر کلیدی ۱: آنپک کردن تاپل با فیلد city
         full_name, phone_number, city, message_count, last_message_month, assigned_consultant_id = user_data
         
         target_consultant_id = assigned_consultant_id
@@ -88,7 +86,6 @@ async def process_question(message: Message, state: FSMContext, db: aiosqlite.Co
             next_index = (current_index + 1) % len(CONSULTANT_IDS)
             await update_next_consultant_index(db, next_index)
         
-        # تغییر کلیدی ۲: استفاده از city در پیام ارسالی به مشاور
         final_message = (
             f"📩 <b>درخواست مشاوره جدید (روانشناسی)</b>\n\n"
             f"<b>نام:</b> {escape(full_name)}\n"

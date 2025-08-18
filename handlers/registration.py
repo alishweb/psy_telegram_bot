@@ -1,4 +1,3 @@
-# psychology_bot/handlers/registration.py
 from aiogram import Router, F
 from aiogram.filters import CommandStart
 from aiogram.types import Message, CallbackQuery, InlineKeyboardMarkup, InlineKeyboardButton
@@ -13,7 +12,6 @@ from db import get_or_create_user, update_user_details
 from middlewares import check_subscription, get_join_channels_keyboard
 from config import MESSAGE_LIMIT, LIMIT_REACHED_MESSAGE, CONSULTANT_IDS, OWNER_ID
 
-# State ها برای فرآیند ثبت نام ربات روانشناسی اصلاح شد
 class Consultation(StatesGroup):
     waiting_for_full_name = State()
     waiting_for_phone_number = State()
@@ -29,7 +27,6 @@ def get_ask_new_question_keyboard():
 @router.message(CommandStart())
 async def command_start_handler(message: Message, state: FSMContext, db: aiosqlite.Connection):
     user_id = message.from_user.id
-    # بررسی هویت مشاور و مدیر
     if user_id in CONSULTANT_IDS:
         await message.answer("سلام مشاور گرامی! 👋\n\nبرای پاسخ به سوالات، کافیست روی پیام آن‌ها ریپلای بزنید.")
         return
@@ -42,7 +39,7 @@ async def command_start_handler(message: Message, state: FSMContext, db: aiosqli
         return
 
     user_data = await get_or_create_user(db, user_id)
-    if user_data[0]:  # اگر کاربر قبلاً ثبت‌نام کرده
+    if user_data[0]:  # If the user logged in in the past
         current_month = datetime.datetime.now().month
         is_new_month = user_data[4] != current_month
         effective_count = 0 if is_new_month else user_data[3]
@@ -50,7 +47,7 @@ async def command_start_handler(message: Message, state: FSMContext, db: aiosqli
             await message.answer(LIMIT_REACHED_MESSAGE)
             return
         await message.answer(f"سلام {escape(user_data[0])} عزیز، خوش برگشتید! 👋", reply_markup=get_ask_new_question_keyboard())
-    else: # اگر کاربر جدید است
+    else: # If the user is new
         await message.answer("سلام! به ربات مشاوره روانشناسی خوش آمدید. 👋\n\nلطفاً نام و نام خانوادگی خود را ارسال کنید:")
         await state.set_state(Consultation.waiting_for_full_name)
 
